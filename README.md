@@ -19,5 +19,7 @@ If you prefer, you can make derivative cheat sheets from those that are found he
 Instructions
 ------------
 Some cheat sheets will already be in a readable format, but some are in LaTeX.
+
 To compile the document source and produce a PDF:
+
     $ pdflatex cheat-sheet.tex
