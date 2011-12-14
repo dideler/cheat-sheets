@@ -841,10 +841,10 @@ Construct PDA for the following languages and state if
 \# of TM is infinitely countable, \# of languages is infinitely uncountable,
 so there are language that have no TM (i.e. uncountable unsolvable problems).
 
-TODO
+\emph{TODO: Creating a TM and formal definitions}
 \\
 \underline{\textbf{Undecidable Problems}} \\
-\underline{E.g.} Let $ALL_{CGF} = \{<G> |\, G$ is a CFG and $L(G) = \Sigma^*\}$.
+\underline{E.g.} Let $ALL_{CFG} = \{<G> |\, G$ is a CFG and $L(G) = \Sigma^*\}$.
 It is known that this language is undecidable.
 Define $EQ_{CFG} = \{<G,H> |\, G$ and $H$ are CFG's and $L(G) = L(H)\}$.
 Show that $EQ_{CFG}$ is undecidable. \\
@@ -859,6 +859,8 @@ where $M$ is some encoding of the machine $M$. Is $A$ Turing-decidable? \\
 \\
 A FSM of $n$ states accepts strings of length $< n$, so brute force!
 Generate all strings of length $< n$, see if any is accepted. Guaranteed to halt (Turing-decidable).\\
+
+\emph{TODO: Formal proofs}
 \\
 \underline{\textbf{Chomsky Hierarchy of Languages}} \\
 \begin{tabular}{c l}
@@ -875,7 +877,7 @@ Not CFL: & $\cdot$ pumping lemma ($uv^iwx^iy$) \\
 \hline
 Recursive: & $\cdot$ decidable (algorithm/TM always terminates) \\
 Rec. Enumerable: & $\cdot$ recognizable (terminates iff legal input) \\
-Non-Rec. Enum.: & $\cdot$ doesn't fit anywhere else \\
+Non-Rec. Enum.: & $\cdot$ unsolvable (doesn't fit elsewhere) \\
 \hline
 \end{tabular}
 Recursively Enumerable languages are closed under:
