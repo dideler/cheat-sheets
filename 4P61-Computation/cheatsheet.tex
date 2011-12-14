@@ -368,11 +368,11 @@ Known nonregular languages: $a^n b^n$ or languages with similar dependencies.}:
   \item For any language $L$, $L^*$ must be regular
   (discuss both cases when $L$ is finite and infinite).\\
   \\
-  If $L$ is finite, then it must be regular (you can find a FSM or regex).
+  If $L$ is finite, then $L$ must be regular (you can find a FSM or regex).
   And if $L$ is regular $\Rightarrow L^*$ is regular, because
   the Kleene star/closure is a regular operation under closure properties.
   Therefore, if $L$ is finite, $L^*$ must be regular.\\
-  However, if $L$ is infinite, then it is nonregular because you would need an
+  If $L$ is infinite, then it is nonregular because you would need an
   infinite number of states (you cannot find a FSM or regex).
   Therefore, if $L$ is infinite, $L^*$ can be regular or nonregular (i.e. it does not say anything).
   \end{enumerate}
@@ -605,33 +605,112 @@ $\bullet$ concatenation of infinite language and finite language is not always i
 CFG's are used for describing the structure of programming languages and other artificial languages.
 The idea is to use ``variables'' for sets of strings (i.e. languages). Variables are defined
 recursively. Every production rule is of the form $V \rightarrow w$, where $V$ is a nonterminal
-symbol (variable) and $w$ is a string on terminals and/or non-terminals (can be empty).
-TIP: using more variables makes it easier.
-\\ \\
+symbol (variable) and $w$ is a string on terminals and/or non-terminals (can be empty). \\
+\\
 \underline{E.g.}
-Find CFG's for the following languages:
+Find CFG's for the following languages: \\
+(start w/ base case \& use as many variables as needed)
 \begin{eqnarray*}
   \{a^n b^n | n \geq 1\} & \{a^n b^n | n \geq 0\} \\
   S \rightarrow ab \,|\, aSb & S \rightarrow aSb \,|\, \epsilon \\
   \\
   (a+b)^*a & \{w | w \in (a+b) \mbox{ and } a's \neq b's\} \\
-  S \rightarrow a \,|\, aS \,|\, bS & \mbox{3 cases:} \\
-  & a = b,\, a > b,\, a < b \\
-  \mbox{Set of all production} & S \rightarrow U \,|\, V \\
-  \mbox{rules for CFG's with} & T \rightarrow aTbT \,|\, bTaT \,|\, \epsilon \\
-  T=\Sigma=\{a,b\}, \mbox{ and} & U \rightarrow TaT \,|\, TaU \\ 
-  V=\{A,B,C\} & V \rightarrow TbT \,|\, TbV \\
-  S \rightarrow X \underline{\rightarrow} Y & \\
-  X \rightarrow A \,|\, B \,|\, C & \mbox{Set of strings over} \\
-  Y \rightarrow \epsilon \,|\, aY \,|\, bY \,|\, AY \,|\, BY \,|\, CY & \Sigma = \{a,b,\cdot,+,(,)\} \\
-   & S \rightarrow a \,|\, b \,|\, S \cdot S \,|\, S + S \,|\, (S) \\
-  \{a^i b^j c^k | i \neq j \, or j \neq k\} & \\
-  \mbox{4 cases:} & \\
-  i>j,\, j<i,\, j>k,\, j<k & \\
-  S \rightarrow ABC \,|\, DEF \,|\, GHI \,|\, JKL  & \\
-  A \rightarrow aA \,|\, a & \\
-  B \rightarrow aBb \,|\, ab \,|\, \epsilon & \\
+  S \rightarrow a \,|\, aS \,|\, bS & a = b,\, a > b,\, \mbox{ or } a < b \\
+   & S \rightarrow U \,|\, V \\
+  \mbox{Set of all production} & T \rightarrow aTbT \,|\, bTaT \,|\, \epsilon \\
+  \mbox{rules for CFG's with} & U \rightarrow TaT \,|\, TaU \\
+  T=\Sigma=\{a,b\}, \mbox{ and} & V \rightarrow TbT \,|\, TbV \\ 
+  V=\{A,B,C\} &  \\
+  S \rightarrow X \underline{\rightarrow} Y & \mbox{Set of strings over} \\
+  X \rightarrow A \,|\, B \,|\, C & \Sigma = \{a,b,+,(,)\} \\
+  Y \rightarrow \epsilon \,|\, aY \,|\, bY \,|\, AY \,|\, BY \,|\, CY & S \rightarrow a \,|\, b \,|\, S + S \,|\, (S)\\
+  \\
+  \{a^i b^j c^k | i \neq j \, or j \neq k\} & \{a^i b^j c^k | i,j,k > 0, i=j \mbox{ or } i=k\} \\
+  i>j,\, j<i,\, j>k,\, \mbox{ or } j<k &  S \rightarrow XY \\
+  S \rightarrow ABC \,|\, DEF \,|\, GHI \,|\, JKL & X \rightarrow aXb \,|\, \epsilon \\
+  A \rightarrow aA \,|\, a & Y \rightarrow cY \,|\, \epsilon \\
+  B \rightarrow aBb \,|\, ab \,|\, \epsilon & \mbox{Similar for } i=k \\
   C \rightarrow cC \,|\, \epsilon & \\
-  \mbox{Similar for } i<j, j>k, j<k & \\ % TODO - continue from here
+  \mbox{Similar for } i<j, j>k, j<k & \{a^n w w^R a^n | n \geq 0, w \in \{a,b\}^* \} \\
+  & \mbox{It's a palindrome} \\
+  & S \rightarrow aSa \,|\, bSb \,|\, \epsilon
 \end{eqnarray*}
+A \textbf{derivation} of a string for a grammar is a sequence of grammar rule applications,
+that transforms the start symbol into the string. A derivation proves that the
+string belongs to the grammar's language. \\
+In a \textbf{leftmost derivation}, the next nonterminal to rewrite is always the leftmost nonterminal;
+in a \textbf{rightmost derivation}, it is always the rightmost nonterminal. \\
+\\
+\underline{E.g.} % Might have to reduce the size of this example!
+Let $G$ be the grammar
+\begin{eqnarray}
+  S &\rightarrow& ASB \\
+  S &\rightarrow& ab \\
+  S &\rightarrow& SS \\
+  A &\rightarrow& aA \\
+  A &\rightarrow& \epsilon \\
+  B &\rightarrow& bB \\
+  B &\rightarrow& \epsilon
+\end{eqnarray}
+
+Leftmost derivation of string $aaabb$
+  \begin{eqnarray}
+    \setcounter{equation}{1}
+    S &\Rightarrow& ASB \\
+    \setcounter{equation}{4}
+    S &\Rightarrow& aASB \\
+    \setcounter{equation}{4}
+    S &\Rightarrow& aaASB \\
+    \setcounter{equation}{5}
+    S &\Rightarrow& aa \epsilon SB = aaSB \\
+    \setcounter{equation}{2}
+    S &\Rightarrow& aaabB \\
+    \setcounter{equation}{6}
+    S &\Rightarrow& aaabbB \\
+    \setcounter{equation}{7}
+    S &\Rightarrow& aaabb\epsilon = aaabb
+  \end{eqnarray}
+
+  Rightmost derivation of the same string.
+  \begin{align} % NOTE: eqnarray is discouraged (spacing issues), so trying align instead...
+    \setcounter{equation}{0} % NOTE: setcounter works differently in align (-1)
+    S &\Rightarrow ASB \\
+    \setcounter{equation}{5}
+    S &\Rightarrow ASbB \\
+    S &\Rightarrow ASb \epsilon = ASb \\
+    \setcounter{equation}{1}
+    S &\Rightarrow Aabb \\
+    \setcounter{equation}{3}
+    S &\Rightarrow aAabb \\
+    \setcounter{equation}{3}
+    S &\Rightarrow aaAabb \\
+    S &\Rightarrow aa \epsilon abb = aaabb
+  \end{align}
+A context-free grammar is said to be \textbf{ambiguous} if there exists a string that can be
+generated by the grammar in more than one way (i.e. the string admits more than one parse tree or,
+equivalently, more than one leftmost derivation). \\
+\\
+\underline{E.g.} % Might have to reduce the size of this example!
+  Give an unambiguous grammar equivalent to $G$. \\
+  \\
+  Some ambiguous grammars can be converted into unambiguous grammars, but no general procedure
+  for doing this is possible just as no algorithm exists for detecting ambiguous grammars.
+  So instead we describe what type of strings $G$ produces and then try to find a grammar that
+  (1) is equivalent to $G$ (i.e. generates the same language), and (2) is unambiguous
+  (i.e. for every sentence of the language, the parse tree is correct).\\
+  \\
+  $G$ produces strings that start with an $a$ and end with a $b$ and have any combination of $a$'s and
+  $b$'s in between.
+  \begin{align*}
+    S &\Rightarrow aTb \\
+    T &\Rightarrow aT \,|\, bT \,|\, \epsilon
+  \end{align*}
+
+\underline{\textbf{Context-Free Language (CFL)}} \\
+\\
+\underline{\textbf{Push Down Automata (PDA)}} \\
+\\
+\underline{\textbf{Turing Machine (TM)}} \\
+\\
+\underline{\textbf{Distinguishing between layers}} \\
 \end{document}
