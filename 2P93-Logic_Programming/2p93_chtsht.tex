@@ -45,34 +45,63 @@ Unification is Prolog's matching technique.\\
 \underline{\textbf{List Manipulation}}
 \begin{verbatim}
 ?- count([1,2,3],N). N = 3
-count([],0).
-count([_|T],N):- count(T,Nsub), succ(Nsub,N).
+count([],0).  	% initializes Sum to 0 (when list has been traversed)
+
+count([_|T],N) :-
+	count(T,Sum),	% recursively traverse the list	
+        N is Sum+1.	% increase counter during backtracking
 
 ?- tally([a,b,b,c],b,N). N = 2
-tally([],_,0).
-tally([H|T],Q,N):-tally(T,Q,Nsub),H=Q,N is Nsub+1.
-tally([H|T],Q,N):- tally(T,Q,Nsub), H\=Q, N=Nsub.
+tally(L,Q,_) :-
+  count(L,Q,0).	% call count with N initialized to 0
+
+count([Q|T],Q,N) :-	% if Q matches current element (i.e. head),
+	!,				% cut to not search exhaustively
+	N1 is N+1,		% increase counter
+	count(T,Q,N1).	% recursively traverse the list with the new count
+
+count([_|T],Q,N) :-	% else Q does not match current element, (because above rule already checked for match)
+	%not(H = Q)		% can add a line such as not(H = Q) or H \= Q to be safe, but not really needed
+	count(T,Q,N).	% recursively traverse the list with the same count
+
+count([],_,N) :-	% if finished traversing the list, (i.e. list is currently empty)
+        write('N = '),
+        write(N),	% print out value of N. if this isn't done, then backtracking causes N to go back to "something" and it won't be returned to the query
+        nl.
 
 ?- removeAll(b,[a,b,b,c],M). M = [a,c]
+removeAll(A,[A|Tail],NewList) :-
+	removeAll(A,Tail,NewList).
+
+removeAll(A,[Head|Tail],[Head|NewTail]) :-	
+	%not(Head = A),	
+	removeAll(A, Tail, NewTail).
+
 removeAll(_,[],[]).
-removeAll(A,[Lhead|Ltail],Ntail):-
-  removeAll(A,Ltail,Ntail), Lhead=A.
-removeAll(A,[Lhead|Ltail],[Lhead|Ntail]):-
-  removeAll(A,Ltail,Ntail), Lhead\=A.
 
 ?- removeItem(b,[b,a,b],M). M = [a,b]; M = [b,a]
-removeItem(N, [N|L], L).
-removeItem(N, [A|R], [A|L]) :- remove(N, R, L).
+removeItem(A,[A|L],L). % base case -- when match found, copy remaining list
+
+removeItem(A,[N|M],[N|L]) :- % adds non matching elements to the front when backtracking (ie adds missing elements)
+  removeItem(A,M,L).
 
 ?- removeGen(all,b,[a,b,b],M). M = [a]
-removeGen(Type,A,L,M):- Type=all,removeAll(A,L,M).
-removeGen(Type,A,L,M):- Type=one,removeItem(A,L,M).
+removeGen(one,A,L,M) :-  % remove one item
+	removeItem(A,L,M).
+
+removeGen(all,A,L,M) :- % remove all items
+	removeAll(A,L,M).
 
 ?- writeList([hello,world]). 1 hello (nl) 2 world
-writeList(L):- writeit(L,1).
-writeit([],_).
-writeit([H|T],N):- write(N),write(' '),writeln(H),
-  succ(N,N2), writeit(T,N2).
+writeList(L) :-
+  writeList(L,0).		% need to initialize counter to 0, only done once
+
+writeList([H|T],N) :-
+	N2 is N+1,		% increase counter
+	write(N2),		% write counter
+	write(' '),		% write white space
+	write(H),nl,	% write current element
+	writeList(T,N2).% recursively traverse the list with the new count
 
 ?- reverseItA([1,2],New). New = [2,1]
 reverseItA(Old,New):- flip(Old,[],New).
@@ -678,46 +707,6 @@ palindrome-->[Char],palindrome,[Char].
 palindrome-->[_]. % single letter
 palindrome-->[]. % an empty string
 \end{verbatim}
-\underline{\textbf{Page 6 of Exam}}\\
-Use conditionals for retracting\\
-\\
-\underline{Example 1:} Basics
-\begin{verbatim}
-?- assert(item(pen)). true.
-?- (retract(item(X))->
-  write(X); write('does not exist')).
-X = pen.
-
-?- (retract(item(X))->
-  write(X); write('does not exist')).
-does not exist
-true.
-\end{verbatim}
-\underline{Example 2:} Counter for multiple items
-\begin{verbatim}
-count:-
-  (retract(age(earl,A))->
-  true; A=0), % if true do nothing, else init to 0
-  NewA is A+1, assert(age(earl,NewA)).
-
-?- count.
-A = 0, NewA = 1. % age(earl,1) is in KB
-
-?- assert(age(earl,29)).
-true. % age(earl,29) is in KB
-
-?- count
-A = 1, NewA = 2.
-% age(earl,1) -> age(earl,2)
-
-?- count.
-A = 29, NewA = 30.
-% age(earl,29) -> age(earl,30)
-
-?- count.
-A = 2, NewA = 3.
-% note the switch between the two earls
-\end{verbatim}
 \underline{\textbf{ASCII Table}}
 \begin{verbatim}
 32 (white space)
@@ -821,8 +810,7 @@ A = 2, NewA = 3.
 \textbullet Declarative programming is "what to" programming: Understand each program predicate at a high level.\\
 \textbullet Backtracking causes execution to revert back to last place a clause was successful, and move on to the next one.\\
 \textbullet Prolog is made up of (1) Facts, (2) Queries, (3) Rules\\
-\\
-\textbullet Green cuts: prune tree without affecting final answer\\
+\textbullet Green cuts: prune tree w/o affecting final answer\\
 \textbullet Red cuts: prune tree and affect final answer\\
 \\
 \textbullet \emph{if-then-else} can be emulated via a cut:
@@ -834,34 +822,9 @@ P :- R.
 \end{verbatim}
 \textbullet Write all matches without hitting next (;)
 \begin{verbatim}
-likes(earl,mexican_coke). likes(earl,ashley).
+likes(boy,girl). likes(programmer,code).
 write_likes:- likes(X,Y), write(X),
   write(' likes '), writeln(Y), fail.
 write_likes. % finish as true
 \end{verbatim}
-\textbullet ops1.pl
-\begin{verbatim}
-:- op(470,yf,'is_bright').
-:- op(470,yf,'is_dim').
-the_sun is_bright.
-earl is_bright.
-moo is_dim.
-
-% Can be queried traditionally:
-% ?- is_bright(X).
-% Or they can be queried as:
-% ?- X is_dim.
-
-% Operator command doesn't define any new functionality;
-% it merely redefines acceptable syntax rules.
-
-:- op(700,xfx,'while').
-:- op(800,xfx,'means').
-
-drinking while driving means arrested.
-% sams as: means(while(drinking,driving),arrested).
-\end{verbatim}
-\begin{figure}[h!]
-  \includegraphics{trogdor.jpg}
-\end{figure}
 \end{document}
